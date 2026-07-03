@@ -20,8 +20,8 @@ export const getDeliveryFee = (
       item.supplier.trim().toUpperCase() === supplier.trim().toUpperCase()
   )?.deliveryFee ?? null;
 
-export const calculateMilkDailyAid = (quantityPerDay: number, unitPrice: number, deliveryFee: number) => {
-  const totalUnits = quantityPerDay * DAYS;
+export const calculateMilkDailyAid = (monthlyQuantity: number, unitPrice: number, deliveryFee: number) => {
+  const totalUnits = monthlyQuantity;
   const itemValue = totalUnits * unitPrice;
   return {
     kind: "Susu" as const,
@@ -46,10 +46,10 @@ export const calculateDiaperDailyAid = (piecesPerDay: number, pcsPerPack: number
   };
 };
 
-export const buildMilkApprovalText = (zone: string, product: MilkTender, quantityPerDay: number, deliveryFee: number) => {
-  const result = calculateMilkDailyAid(quantityPerDay, product.unitPrice, deliveryFee);
+export const buildMilkApprovalText = (zone: string, product: MilkTender, monthlyQuantity: number, deliveryFee: number) => {
+  const result = calculateMilkDailyAid(monthlyQuantity, product.unitPrice, deliveryFee);
   const unit = product.unit.toUpperCase();
-  return `ZON ${zone}. SUSU ${productLabel(product.productName, product.specification).toUpperCase()}. ${quantityPerDay} ${unit} SEHARI x 30 HARI = ${result.totalUnits} ${unit}. ${result.totalUnits} ${unit} x RM${formatMoneyText(product.unitPrice)} = RM${formatMoneyText(result.itemValue)}. *KOS HANTAR RM${formatMoneyText(deliveryFee)}* = RM${formatMoneyText(result.totalAid)}`;
+  return `ZON ${zone}. SUSU ${productLabel(product.productName, product.specification).toUpperCase()}. ${monthlyQuantity} ${unit} SEBULAN. ${result.totalUnits} ${unit} x RM${formatMoneyText(product.unitPrice)} = RM${formatMoneyText(result.itemValue)}. *KOS HANTAR RM${formatMoneyText(deliveryFee)}* = RM${formatMoneyText(result.totalAid)}`;
 };
 
 export const buildDiaperApprovalText = (zone: string, product: DiaperTender, piecesPerDay: number, deliveryFee: number) => {

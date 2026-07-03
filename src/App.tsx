@@ -276,12 +276,12 @@ function App() {
         )}
 
         <label>
-          <span>{aidType === "Susu" ? "Kuantiti Sehari" : "Keping Sehari"}</span>
+          <span>{aidType === "Susu" ? "Kuantiti Bulanan" : "Keping Sehari"}</span>
           <input
             inputMode="numeric"
             min="1"
             pattern="[0-9]*"
-            placeholder={aidType === "Susu" ? "Contoh: 1" : "Contoh: 5"}
+            placeholder={aidType === "Susu" ? "Contoh: 30" : "Contoh: 5"}
             type="number"
             value={quantity}
             onChange={(event) => setQuantity(event.target.value)}
@@ -386,9 +386,12 @@ function ResultSection({
           }
         />
         {selectedDiaper ? <Detail label="Kandungan Satu Pek" value={`${selectedDiaper.pcsPerPack} keping`} /> : null}
-        <Detail label="Keperluan Sehari" value={quantity ? `${quantity} ${aidType === "Susu" ? selectedMilk?.unit ?? "unit" : "keping"}` : "-"} />
         <Detail
-          label={aidType === "Susu" ? "Jumlah Unit 30 Hari" : "Jumlah Pek 30 Hari"}
+          label={aidType === "Susu" ? "Kuantiti Bulanan" : "Keperluan Sehari"}
+          value={quantity ? `${quantity} ${aidType === "Susu" ? selectedMilk?.unit ?? "unit" : "keping"}` : "-"}
+        />
+        <Detail
+          label={aidType === "Susu" ? "Jumlah Unit Sebulan" : "Jumlah Pek 30 Hari"}
           value={milkResult ? `${milkResult.totalUnits} ${selectedMilk?.unit ?? "unit"}` : diaperResult ? `${diaperResult.totalPacks} pek` : "-"}
         />
         <Detail label="Nilai Item" value={result ? formatCurrencyMYR(result.itemValue) : "-"} />
