@@ -29,6 +29,8 @@ const emptyData: MasterData = {
 const categories: Category[] = ["Dewasa", "Kanak-kanak"];
 const diaperTypes: DiaperType[] = ["Tape", "Pants"];
 
+const diaperSizeLabel = (item: DiaperTender): string => `${item.size} (${item.pcsPerPack}'s)`;
+
 function App() {
   const [data, setData] = useState<MasterData>(emptyData);
   const [loadError, setLoadError] = useState("");
@@ -74,7 +76,7 @@ function App() {
   );
 
   const diaperProductNames = unique(diaperProducts.map((item) => item.productName));
-  const diaperSizes = unique(diaperProducts.filter((item) => item.productName === diaperProductName).map((item) => item.size));
+  const diaperSizeOptions = diaperProducts.filter((item) => item.productName === diaperProductName);
   const selectedDiaper =
     diaperProducts.find((item) => item.productName === diaperProductName && item.size === diaperSize) ?? null;
 
@@ -265,9 +267,9 @@ function App() {
               <span>Saiz</span>
               <select value={diaperSize} onChange={(event) => setDiaperSize(event.target.value)} disabled={!diaperProductName}>
                 <option value="">Pilih saiz</option>
-                {diaperSizes.map((item) => (
-                  <option key={item} value={item}>
-                    {item}
+                {diaperSizeOptions.map((item) => (
+                  <option key={item.id} value={item.size}>
+                    {diaperSizeLabel(item)}
                   </option>
                 ))}
               </select>
@@ -371,7 +373,7 @@ function ResultSection({
             selectedMilk
               ? productLabel(selectedMilk.productName, selectedMilk.specification)
               : selectedDiaper
-                ? `${selectedDiaper.productName} ${selectedDiaper.size}`
+                ? `${selectedDiaper.productName} ${diaperSizeLabel(selectedDiaper)}`
                 : "-"
           }
         />
