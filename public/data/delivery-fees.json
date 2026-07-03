@@ -1,0 +1,12 @@
+[
+  { "aidType": "Susu", "zone": "A", "supplier": "RAFFMEDICA SDN. BHD", "deliveryFee": 10, "active": true },
+  { "aidType": "Susu", "zone": "B", "supplier": "RAFFMEDICA SDN. BHD", "deliveryFee": 11, "active": true },
+  { "aidType": "Susu", "zone": "C", "supplier": "RAFFMEDICA SDN. BHD", "deliveryFee": 10, "active": true },
+  { "aidType": "Susu", "zone": "D", "supplier": "EAGLE CLIFFE (M) SDN BHD", "deliveryFee": 10, "active": true },
+  { "aidType": "Susu", "zone": "E", "supplier": "RAFFMEDICA SDN. BHD", "deliveryFee": 10, "active": true },
+  { "aidType": "Lampin", "zone": "A", "supplier": "RAFFMEDICA SDN BHD", "deliveryFee": 10, "active": true },
+  { "aidType": "Lampin", "zone": "B", "supplier": "SNZ SIGMA SUPPLY", "deliveryFee": 5, "active": true },
+  { "aidType": "Lampin", "zone": "C", "supplier": "JUTA MANN RESOURCES", "deliveryFee": 30, "active": true },
+  { "aidType": "Lampin", "zone": "D", "supplier": "EAGLE CLIFFE (M) SDN BHD", "deliveryFee": 10, "active": true },
+  { "aidType": "Lampin", "zone": "E", "supplier": "JUTA MANN RESOURCES", "deliveryFee": 33, "active": true }
+]

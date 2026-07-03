@@ -1,0 +1,14 @@
+[
+  { "parliament": "Batu", "zone": "A" },
+  { "parliament": "Kepong", "zone": "A" },
+  { "parliament": "Bandar Tun Razak", "zone": "B" },
+  { "parliament": "Cheras", "zone": "B" },
+  { "parliament": "Putrajaya", "zone": "B" },
+  { "parliament": "Wangsa Maju", "zone": "C" },
+  { "parliament": "Setiawangsa", "zone": "C" },
+  { "parliament": "Seputeh", "zone": "D" },
+  { "parliament": "Lembah Pantai", "zone": "D" },
+  { "parliament": "Segambut", "zone": "D" },
+  { "parliament": "Bukit Bintang", "zone": "E" },
+  { "parliament": "Titiwangsa", "zone": "E" }
+]
