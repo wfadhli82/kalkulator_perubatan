@@ -43,6 +43,7 @@ const diaperTypes: DiaperType[] = ["Tape", "Pants"];
 const diaperQuantityModes: DiaperQuantityMode[] = ["Harian", "Bulanan"];
 
 const diaperSizeLabel = (item: DiaperTender): string => `${item.size} (${item.pcsPerPack}'s)`;
+const monthlyDiaperPackLimit = (category: Category): number => (category === "Kanak-kanak" ? 4 : 10);
 
 function App() {
   const [data, setData] = useState<MasterData>(emptyData);
@@ -97,8 +98,9 @@ function App() {
   const selectedSupplier = aidType === "Susu" ? selectedMilk?.supplier : selectedDiaper?.supplier;
   const deliveryFee =
     zone && selectedSupplier ? getDeliveryFee(aidType, zone, selectedSupplier, data.deliveryFees) : null;
+  const monthlyPackLimit = monthlyDiaperPackLimit(category);
   const isInvalidMonthlyDiaperQuantity =
-    aidType === "Lampin" && diaperQuantityMode === "Bulanan" && dailyQuantity !== null && dailyQuantity > 10;
+    aidType === "Lampin" && diaperQuantityMode === "Bulanan" && dailyQuantity !== null && dailyQuantity > monthlyPackLimit;
 
   const milkResult =
     aidType === "Susu" && selectedMilk && dailyQuantity && deliveryFee !== null
@@ -316,9 +318,11 @@ function App() {
           <input
             inputMode="numeric"
             min="1"
-            max={aidType === "Lampin" && diaperQuantityMode === "Bulanan" ? "10" : undefined}
+            max={aidType === "Lampin" && diaperQuantityMode === "Bulanan" ? monthlyPackLimit : undefined}
             pattern="[0-9]*"
-            placeholder={aidType === "Susu" ? "Contoh: 30" : diaperQuantityMode === "Harian" ? "Contoh: 5" : "Maksimum 10"}
+            placeholder={
+              aidType === "Susu" ? "Contoh: 30" : diaperQuantityMode === "Harian" ? "Contoh: 5" : `Maksimum ${monthlyPackLimit}`
+            }
             type="number"
             value={quantity}
             onChange={(event) => setQuantity(event.target.value)}
@@ -327,7 +331,7 @@ function App() {
 
         {quantity && !dailyQuantity ? <div className="alert">Masukkan nombor bulat positif sahaja.</div> : null}
         {isInvalidMonthlyDiaperQuantity ? (
-          <div className="alert">Jumlah pek sebulan maksimum 10.</div>
+          <div className="alert">Jumlah pek sebulan maksimum {monthlyPackLimit}.</div>
         ) : null}
         {missingTenderMessage ? <div className="alert">{missingTenderMessage}</div> : null}
         {selectedSupplier && deliveryFee === null ? (
