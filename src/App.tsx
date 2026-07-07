@@ -186,16 +186,11 @@ function App() {
             <option value="">Pilih Parlimen</option>
             {data.parliamentZones.map((item) => (
               <option key={item.parliament} value={item.parliament}>
-                {item.parliament}
+                {item.parliament} (Zon {item.zone})
               </option>
             ))}
           </select>
         </label>
-
-        <div className="zone-row">
-          <span>Zon Tender</span>
-          <strong>{zone || "-"}</strong>
-        </div>
 
         <div>
           <span className="field-title">Jenis Bantuan</span>
