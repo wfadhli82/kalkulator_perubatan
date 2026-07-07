@@ -1,8 +1,20 @@
 import { Clipboard, RotateCcw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { AidType, Category, DeliveryFee, DiaperTender, DiaperType, MilkTender, ParliamentZone } from "./data/types";
+import type {
+  AidType,
+  Category,
+  DeliveryFee,
+  DiaperResult,
+  DiaperQuantityMode,
+  DiaperTender,
+  DiaperType,
+  MilkTender,
+  ParliamentZone
+} from "./data/types";
 import {
+  buildDiaperMonthlyApprovalText,
   buildDiaperApprovalText,
+  calculateDiaperMonthlyAid,
   buildMilkApprovalText,
   calculateDiaperDailyAid,
   calculateMilkDailyAid,
@@ -28,6 +40,7 @@ const emptyData: MasterData = {
 
 const categories: Category[] = ["Dewasa", "Kanak-kanak"];
 const diaperTypes: DiaperType[] = ["Tape", "Pants"];
+const diaperQuantityModes: DiaperQuantityMode[] = ["Harian", "Bulanan"];
 
 const diaperSizeLabel = (item: DiaperTender): string => `${item.size} (${item.pcsPerPack}'s)`;
 
@@ -39,6 +52,7 @@ function App() {
   const [category, setCategory] = useState<Category>("Dewasa");
   const [milkProductId, setMilkProductId] = useState("");
   const [diaperType, setDiaperType] = useState<DiaperType>("Tape");
+  const [diaperQuantityMode, setDiaperQuantityMode] = useState<DiaperQuantityMode>("Harian");
   const [diaperProductName, setDiaperProductName] = useState("");
   const [diaperSize, setDiaperSize] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -83,6 +97,8 @@ function App() {
   const selectedSupplier = aidType === "Susu" ? selectedMilk?.supplier : selectedDiaper?.supplier;
   const deliveryFee =
     zone && selectedSupplier ? getDeliveryFee(aidType, zone, selectedSupplier, data.deliveryFees) : null;
+  const isInvalidMonthlyDiaperQuantity =
+    aidType === "Lampin" && diaperQuantityMode === "Bulanan" && dailyQuantity !== null && dailyQuantity > 10;
 
   const milkResult =
     aidType === "Susu" && selectedMilk && dailyQuantity && deliveryFee !== null
@@ -90,15 +106,19 @@ function App() {
       : null;
 
   const diaperResult =
-    aidType === "Lampin" && selectedDiaper && dailyQuantity && deliveryFee !== null
-      ? calculateDiaperDailyAid(dailyQuantity, selectedDiaper.pcsPerPack, selectedDiaper.packPrice, deliveryFee)
+    aidType === "Lampin" && selectedDiaper && dailyQuantity && deliveryFee !== null && !isInvalidMonthlyDiaperQuantity
+      ? diaperQuantityMode === "Harian"
+        ? calculateDiaperDailyAid(dailyQuantity, selectedDiaper.pcsPerPack, selectedDiaper.packPrice, deliveryFee)
+        : calculateDiaperMonthlyAid(dailyQuantity, selectedDiaper.packPrice, deliveryFee)
       : null;
 
   const approvalText =
     aidType === "Susu" && selectedMilk && dailyQuantity && deliveryFee !== null
       ? buildMilkApprovalText(zone, selectedMilk, dailyQuantity, deliveryFee)
-      : aidType === "Lampin" && selectedDiaper && dailyQuantity && deliveryFee !== null
-        ? buildDiaperApprovalText(zone, selectedDiaper, dailyQuantity, deliveryFee)
+      : aidType === "Lampin" && selectedDiaper && dailyQuantity && deliveryFee !== null && !isInvalidMonthlyDiaperQuantity
+        ? diaperQuantityMode === "Harian"
+          ? buildDiaperApprovalText(zone, selectedDiaper, dailyQuantity, deliveryFee)
+          : buildDiaperMonthlyApprovalText(zone, selectedDiaper, dailyQuantity, deliveryFee)
         : "";
 
   const resetDynamicFields = () => {
@@ -114,6 +134,7 @@ function App() {
     setAidType("Susu");
     setCategory("Dewasa");
     setDiaperType("Tape");
+    setDiaperQuantityMode("Harian");
     resetDynamicFields();
   };
 
@@ -246,6 +267,22 @@ function App() {
               </div>
             </div>
             <label>
+              <span>Kuantiti</span>
+              <select
+                value={diaperQuantityMode}
+                onChange={(event) => {
+                  setDiaperQuantityMode(event.target.value as DiaperQuantityMode);
+                  setQuantity("");
+                }}
+              >
+                {diaperQuantityModes.map((mode) => (
+                  <option key={mode} value={mode}>
+                    {mode}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
               <span>Produk / Jenama</span>
               <select
                 value={diaperProductName}
@@ -278,12 +315,15 @@ function App() {
         )}
 
         <label>
-          <span>{aidType === "Susu" ? "Kuantiti Bulanan" : "Keping Sehari"}</span>
+          <span>
+            {aidType === "Susu" ? "Kuantiti Bulanan" : diaperQuantityMode === "Harian" ? "Keping Sehari" : "Jumlah Pek Sebulan"}
+          </span>
           <input
             inputMode="numeric"
             min="1"
+            max={aidType === "Lampin" && diaperQuantityMode === "Bulanan" ? "10" : undefined}
             pattern="[0-9]*"
-            placeholder={aidType === "Susu" ? "Contoh: 30" : "Contoh: 5"}
+            placeholder={aidType === "Susu" ? "Contoh: 30" : diaperQuantityMode === "Harian" ? "Contoh: 5" : "Maksimum 10"}
             type="number"
             value={quantity}
             onChange={(event) => setQuantity(event.target.value)}
@@ -291,6 +331,9 @@ function App() {
         </label>
 
         {quantity && !dailyQuantity ? <div className="alert">Masukkan nombor bulat positif sahaja.</div> : null}
+        {isInvalidMonthlyDiaperQuantity ? (
+          <div className="alert">Jumlah pek sebulan maksimum 10.</div>
+        ) : null}
         {missingTenderMessage ? <div className="alert">{missingTenderMessage}</div> : null}
         {selectedSupplier && deliveryFee === null ? (
           <div className="alert">Kos penghantaran belum dikonfigurasi. Pengiraan tidak boleh diteruskan.</div>
@@ -301,6 +344,7 @@ function App() {
         aidType={aidType}
         deliveryFee={deliveryFee}
         diaperResult={diaperResult}
+        diaperQuantityMode={diaperQuantityMode}
         milkResult={milkResult}
         quantity={dailyQuantity}
         selectedDiaper={selectedDiaper}
@@ -337,6 +381,7 @@ function ResultSection({
   aidType,
   deliveryFee,
   diaperResult,
+  diaperQuantityMode,
   milkResult,
   quantity,
   selectedDiaper,
@@ -345,7 +390,8 @@ function ResultSection({
 }: {
   aidType: AidType;
   deliveryFee: number | null;
-  diaperResult: ReturnType<typeof calculateDiaperDailyAid> | null;
+  diaperResult: DiaperResult | null;
+  diaperQuantityMode: DiaperQuantityMode;
   milkResult: ReturnType<typeof calculateMilkDailyAid> | null;
   quantity: number | null;
   selectedDiaper: DiaperTender | null;
@@ -389,11 +435,18 @@ function ResultSection({
         />
         {selectedDiaper ? <Detail label="Kandungan Satu Pek" value={`${selectedDiaper.pcsPerPack} keping`} /> : null}
         <Detail
-          label={aidType === "Susu" ? "Kuantiti Bulanan" : "Keperluan Sehari"}
-          value={quantity ? `${quantity} ${aidType === "Susu" ? selectedMilk?.unit ?? "unit" : "keping"}` : "-"}
+          label={aidType === "Susu" ? "Kuantiti Bulanan" : diaperQuantityMode === "Harian" ? "Keperluan Sehari" : "Jumlah Pek Sebulan"}
+          value={
+            quantity
+              ? `${quantity} ${aidType === "Susu" ? selectedMilk?.unit ?? "unit" : diaperQuantityMode === "Harian" ? "keping" : "pek"}`
+              : "-"
+          }
         />
+        {diaperResult && diaperQuantityMode === "Harian" ? (
+          <Detail label="Jumlah Keping 30 Hari" value={`${diaperResult.totalPieces} keping`} />
+        ) : null}
         <Detail
-          label={aidType === "Susu" ? "Jumlah Unit Sebulan" : "Jumlah Pek 30 Hari"}
+          label={aidType === "Susu" ? "Jumlah Unit Sebulan" : diaperQuantityMode === "Harian" ? "Jumlah Pek 30 Hari" : "Jumlah Pek Sebulan"}
           value={milkResult ? `${milkResult.totalUnits} ${selectedMilk?.unit ?? "unit"}` : diaperResult ? `${diaperResult.totalPacks} pek` : "-"}
         />
         <Detail label="Nilai Item" value={result ? formatCurrencyMYR(result.itemValue) : "-"} />

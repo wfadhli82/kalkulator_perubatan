@@ -38,8 +38,22 @@ export const calculateDiaperDailyAid = (piecesPerDay: number, pcsPerPack: number
   const itemValue = totalPacks * packPrice;
   return {
     kind: "Lampin" as const,
+    quantityMode: "Harian" as const,
     totalPieces,
     totalPacks,
+    itemValue,
+    deliveryFee,
+    totalAid: itemValue + deliveryFee
+  };
+};
+
+export const calculateDiaperMonthlyAid = (packsPerMonth: number, packPrice: number, deliveryFee: number) => {
+  const itemValue = packsPerMonth * packPrice;
+  return {
+    kind: "Lampin" as const,
+    quantityMode: "Bulanan" as const,
+    totalPieces: 0,
+    totalPacks: packsPerMonth,
     itemValue,
     deliveryFee,
     totalAid: itemValue + deliveryFee
@@ -55,4 +69,9 @@ export const buildMilkApprovalText = (zone: string, product: MilkTender, monthly
 export const buildDiaperApprovalText = (zone: string, product: DiaperTender, piecesPerDay: number, deliveryFee: number) => {
   const result = calculateDiaperDailyAid(piecesPerDay, product.pcsPerPack, product.packPrice, deliveryFee);
   return `*${product.diaperType.toUpperCase()}:*\nZON ${zone}. LAMPIN ${product.productName.toUpperCase()} (${product.diaperType.toUpperCase()}) ${product.pcsPerPack}'S SAIZ ${product.size}. ${piecesPerDay} KEPING SEHARI x 30 HARI = ${result.totalPieces} KEPING / ${result.totalPacks} PEK. ${result.totalPacks} PEK x RM${formatMoneyText(product.packPrice)} = RM${formatMoneyText(result.itemValue)}. *KOS HANTAR RM${formatMoneyText(deliveryFee)}* = RM${formatMoneyText(result.totalAid)}`;
+};
+
+export const buildDiaperMonthlyApprovalText = (zone: string, product: DiaperTender, packsPerMonth: number, deliveryFee: number) => {
+  const result = calculateDiaperMonthlyAid(packsPerMonth, product.packPrice, deliveryFee);
+  return `*${product.diaperType.toUpperCase()}:*\nZON ${zone}. LAMPIN ${product.productName.toUpperCase()} (${product.diaperType.toUpperCase()}) ${product.pcsPerPack}'S SAIZ ${product.size}. ${packsPerMonth} PEK x RM${formatMoneyText(product.packPrice)} = RM${formatMoneyText(result.itemValue)}. *KOS HANTAR RM${formatMoneyText(deliveryFee)}* = RM${formatMoneyText(result.totalAid)}`;
 };

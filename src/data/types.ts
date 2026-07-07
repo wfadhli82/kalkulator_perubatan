@@ -1,6 +1,7 @@
 export type AidType = "Susu" | "Lampin";
 export type Category = "Dewasa" | "Kanak-kanak";
 export type DiaperType = "Tape" | "Pants";
+export type DiaperQuantityMode = "Harian" | "Bulanan";
 
 export interface ParliamentZone {
   parliament: string;
@@ -51,6 +52,7 @@ export interface MilkResult {
 
 export interface DiaperResult {
   kind: "Lampin";
+  quantityMode: DiaperQuantityMode;
   totalPieces: number;
   totalPacks: number;
   itemValue: number;
